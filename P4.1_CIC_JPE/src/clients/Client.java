@@ -15,8 +15,19 @@ public class Client {
             DataInputStream din = new DataInputStream(s.getInputStream());
             DataOutputStream dout = new DataOutputStream(s.getOutputStream());
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            esperarJugador(din);
+            Boolean jugador = esperarJugador(din);
             String str="",str2="";
+            while(true) {
+                //True és el jugador 2
+                if (jugador == true) {
+                }
+                //False és el jugador 1
+                else {
+                    for (int i = 0; i <= 42; ++i) {
+                        str = din.readUTF();
+                    }
+                }
+            }
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -41,13 +52,15 @@ public class Client {
         return connexio;
     }
 
-    public static void esperarJugador(DataInputStream din) {
+    public static boolean esperarJugador(DataInputStream din) {
         try {
             System.out.println(din.readUTF());
             Boolean espera = din.readBoolean();
             if (espera == false) din.readBoolean();
+            return espera;
         } catch (IOException e){
             System.out.println(e);
+            return true;
         }
     }
 
