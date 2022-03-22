@@ -15,6 +15,7 @@ public class Client {
             DataInputStream din = new DataInputStream(s.getInputStream());
             DataOutputStream dout = new DataOutputStream(s.getOutputStream());
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            esperarJugador(din);
             String str="",str2="";
         } catch (IOException e) {
             System.out.println(e);
@@ -39,4 +40,16 @@ public class Client {
         connexio = connexio.substring(0,delimiter);
         return connexio;
     }
+
+    public static void esperarJugador(DataInputStream din) {
+        try {
+            System.out.println(din.readUTF());
+            Boolean espera = din.readBoolean();
+            if (espera == false) din.readBoolean();
+        } catch (IOException e){
+            System.out.println(e);
+        }
+    }
+
+
 }
