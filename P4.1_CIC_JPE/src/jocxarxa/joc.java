@@ -156,11 +156,12 @@ public class joc {
             dout.writeUTF("En quina columna vols posar la peça (1-7): ");
             dout.flush();
             cp = din.readInt();
+            i = 0;
             if (cp > 0 && cp <= 7) {
-                do {
+                while (tbuit[i + 1][cp] == 46) {
                     ++i;
-                } while (tbuit[i + 1][cp] == 46);
-                if (i != 1) {
+                }
+                if (tbuit[i +1][cp] != '.') {
                     tbuit[i][cp] = peca;
                     dout.writeBoolean(true);
                     comprovarLinia(i, cp, peca);
@@ -175,21 +176,10 @@ public class joc {
                 System.out.println("Aquesta columna està plena tria un altre.");
                 dout.writeBoolean(false);
             }
-        } while ((i == 1) || !(cp > 0 && cp <= 7));
+        } while ((i == 0) || !(cp > 0 && cp <= 7));
 
     }
-        public static boolean comprovarColumnaPlena(int cp) {
-                int contador = 0;
-                if (cp > 0 && cp < 7) {
-                    for (int i = 1; i > tbuit.length - 1; i++) {
-                        if (tbuit[i][cp] == 'X' || tbuit[i][cp] == 'O') {
-                            contador++;
-                        }
-                    }
-                    return (contador == f + 1)  ? false : true;
-                }
-                return false;
-        }
+
     public static void comprovarLinia(int i, int cp, char peca) {
         if (liniaVertical(i, cp, peca)) {
             try {
