@@ -4,7 +4,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+/**
+    La Classe Connexio es on esta la configuracio del Servidor perque els clinets es poguin conectar.
+*/
 public class Connexio {
     public static void mostrarip() throws IOException {
         String ip;
@@ -12,6 +14,7 @@ public class Connexio {
         ip = s.getLocalAddress().getHostAddress();
         System.out.println("La ip del servidor per realitzar la connexió és: " + ip + ":5000");
     }
+
     public static Socket establirconnexio(ServerSocket ss){
         try {
             return ss.accept();

@@ -2,6 +2,7 @@ package jocxarxa;
 
 import Servidor.Connexio;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,6 +21,9 @@ public class joc {
         static DataOutputStream dout1;
         static DataOutputStream dout2;
         static ServerSocket ss;
+        static Boolean jugador;
+        static char peca;
+        static boolean fipartida = false;
     static Scanner scan = new Scanner(System.in);
     public static void main(String[] args) {
 
@@ -32,23 +36,56 @@ public class joc {
             s1 = Connexio.establirconnexio(ss);
             din1=new DataInputStream(s1.getInputStream());
             dout1=new DataOutputStream(s1.getOutputStream());
-            Boolean espera = true;
-            Connexio.enviarEspera(dout1, espera);
+            jugador = true;
+            Connexio.enviarEspera(dout1, jugador);
 
             //Inicialitzar connexió amb el 2n Client
             s2 = Connexio.establirconnexio(ss);
             din2=new DataInputStream(s2.getInputStream());
             dout2=new DataOutputStream(s2.getOutputStream());
             BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
-            espera = false;
-            Connexio.enviarEspera(dout2, espera);
+            jugador = false;
+            Connexio.enviarEspera(dout2, jugador);
             dout1.writeBoolean(true);
             dout1.flush();
+
+            //Seleccionem el jugador 1
+            jugador = true;
 
         } catch(IOException e){
             System.out.println(e);
         }
         inicialitzarTaulell();
+        while (fipartida != true){
+            if(jugador == false) {
+                peca = 'X';
+                try {
+                    dout2.writeUTF("Esperi el seu torn...");
+                    dout2.flush();
+                    afegirPeca(peca, din1, dout1);
+                } catch (IOException e){
+                    System.out.println(e);
+                }
+                jugador = true;
+            } else {
+                peca = 'O';
+                try {
+                    dout1.writeUTF("Esperi el seu torn...");
+                    dout1.flush();
+                    afegirPeca(peca, din2, dout2);
+                } catch (IOException e){
+                    System.out.println(e);
+                }
+                jugador = false;
+            }
+        }
+        try{
+            ss.close();
+        } catch(IOException e){
+            System.out.println(e);
+        }
+
+
     }
 
     public static void inicialitzarTaulell() {
@@ -79,28 +116,68 @@ public class joc {
 
             } while (c-2 != n);
             System.out.println();
+            try{
+                dout1.writeUTF("\n");
+                dout1.flush();
+                dout2.writeUTF("\n");
+                dout2.flush();
+            } catch (IOException e){
+                System.out.println(e);
+            }
             for (int i =1; i < tbuit.length -1; i++) {
                 for (int j = 1; j < tbuit[i].length - 1; j++) {
                     System.out.print(" " + tbuit[i][j] + " ");
+                    String enviar = String.format(" " + tbuit[i][j] + " ");
+                    try{
+                        dout1.writeUTF(enviar);
+                        dout1.flush();
+                        dout2.writeUTF(enviar);
+                        dout2.flush();
+                    } catch (IOException e){
+                        System.out.println(e);
+                    }
                 }
                 System.out.println();
+                String enviar = String.format("\n");
+                try{
+                    dout1.writeUTF("\n");
+                    dout1.flush();
+                    dout2.writeUTF("\n");
+                    dout2.flush();
+                } catch (IOException e){
+                    System.out.println(e);
+                }
             }
         }
-        public static void afegirPeca(char peca) {
-            int i = 1;
-            System.out.print("En quina columna vols posar la peça (1-7):");
-            int cp = scan.nextInt();
-            scan.nextLine();
-            if (comprovarColumnaPlena(cp)) {
-                while(tbuit[i + 1][cp] == '·'){ ++i; }
-                tbuit[i][cp] = peca;
+    public static void afegirPeca(char peca, DataInputStream din, DataOutputStream dout) throws IOException {
+        int i = 0;
+        int cp = 0;
+        do {
+            dout.writeUTF("En quina columna vols posar la peça (1-7): ");
+            dout.flush();
+            cp = din.readInt();
+            if (cp > 0 && cp <= 7) {
+                do {
+                    ++i;
+                } while (tbuit[i + 1][cp] == 46);
+                if (i != 1) {
+                    tbuit[i][cp] = peca;
+                    dout.writeBoolean(true);
+                    comprovarLinia(i, cp, peca);
+                    mostrarTaulell();
+
+                } else {
+                    System.out.println("Aquesta columna està plena tria un altre.");
+                    dout.writeBoolean(false);
+                }
             } else {
+                System.out.println("El numero a de ser entre 1 i 7.");
                 System.out.println("Aquesta columna està plena tria un altre.");
+                dout.writeBoolean(false);
             }
-            comprovarLinia(i, cp);
+        } while ((i == 1) || !(cp > 0 && cp <= 7));
 
-
-        }
+    }
         public static boolean comprovarColumnaPlena(int cp) {
                 int contador = 0;
                 if (cp > 0 && cp < 7) {
@@ -113,7 +190,109 @@ public class joc {
                 }
                 return false;
         }
-        public static void comprovarLinia(int i, int cp) {
-            
+    public static void comprovarLinia(int i, int cp, char peca) {
+        if (liniaVertical(i, cp, peca)) {
+            try {
+                dout1.writeBoolean(true);
+                dout2.writeBoolean(true);
+                fipartida = true;
+                dout2.flush();
+                dout1.flush();
+            }catch (IOException e){
+                System.out.println(e);
+            }
+                System.out.println("Has fet una linia vertical");
+                System.out.println("Has guanyat!");
+        } else if (liniaHoritzontal(i, cp, peca)) {
+            try {
+                dout1.writeBoolean(true);
+                dout2.writeBoolean(true);
+                fipartida = true;
+                dout2.flush();
+                dout1.flush();
+            }catch (IOException e){
+                System.out.println(e);
+            }
+            System.out.println("Has fet una linia horitzonal");
+            System.out.println("Has guanyat!");
+        } else if (liniaDiagonalEsquerra(i, cp, peca)) {
+            try {
+                dout1.writeBoolean(true);
+                dout2.writeBoolean(true);
+                fipartida = true;
+                dout2.flush();
+                dout1.flush();
+            }catch (IOException e){
+                System.out.println(e);
+            }
+            System.out.println("Has fet una linia diagonal a l'esquerra");
+            System.out.println("Has guanyat!");
+        } else if (liniaDiagonalDreta(i, cp, peca)) {
+            try {
+                dout1.writeBoolean(true);
+                dout2.writeBoolean(true);
+                fipartida = true;
+                dout2.flush();
+                dout1.flush();
+            }catch (IOException e){
+                System.out.println(e);
+            }
+            System.out.println("Has fet una linia diagonal a la dreta");
+            System.out.println("Has guanyat!");
+        } else {
+            try {
+                dout1.writeBoolean(false);
+                dout2.writeBoolean(false);
+                dout2.flush();
+                dout1.flush();
+            }catch (IOException e){
+                System.out.println(e);
+            }
         }
+    }
+    public static boolean liniaVertical(int i, int cp, char peca) {
+        int l = 0;
+        while (tbuit[i][cp] == peca) {
+            l++;
+            i++;
+        }
+        return l >= 4;
+    }
+    public static boolean liniaHoritzontal(int i, int cp, char peca) {
+        int l = 0;
+        while (tbuit[i][cp] == peca) {
+            cp--;
+        }
+        while (tbuit[i][cp + 1] == peca) {
+            l++;
+            cp++;
+        }
+        return l >= 4;
+    }
+    public static boolean liniaDiagonalEsquerra(int i, int cp, char peca) {
+        int l = 0;
+        while (tbuit[i][cp] == peca) {
+            i--;
+            cp--;
+        }
+        while (tbuit[i + 1][cp + 1] == peca) {
+            l++;
+            cp++;
+            i++;
+        }
+        return l >= 4;
+    }
+    public static boolean liniaDiagonalDreta(int i, int cp, char peca) {
+        int l = 0;
+        while (tbuit[i][cp] == peca) {
+            i--;
+            cp++;
+        }
+        while (tbuit[i + 1][cp - 1] == peca) {
+            l++;
+            cp--;
+            i++;
+        }
+        return l >= 4;
+    }
 }

@@ -6,11 +6,13 @@ import java.util.Scanner;
 
 
 public class Client {
+    static boolean comprovarguanyador;
     public static void main(String[] args){
         String connexio = obtenirConnexio();
         int port = obtenirPort(connexio);
         connexio = separarPortdeIP(connexio);
         try {
+            Scanner scan = new Scanner(System.in);
             Socket s = new Socket(connexio, port);
             DataInputStream din = new DataInputStream(s.getInputStream());
             DataOutputStream dout = new DataOutputStream(s.getOutputStream());
@@ -18,15 +20,50 @@ public class Client {
             Boolean jugador = esperarJugador(din);
             String str="",str2="";
             while(true) {
-                //True és el jugador 2
-                if (jugador == true) {
+                for (int i = 0; i <= 55; ++i) {
+                    str = din.readUTF();
+                    System.out.print(str);
                 }
-                //False és el jugador 1
-                else {
-                    for (int i = 0; i <= 42; ++i) {
-                        str = din.readUTF();
+
+                if (jugador == false) {
+                    System.out.print(din.readUTF());
+                    comprovarguanyador = din.readBoolean();
+                    if(comprovarguanyador == true){
+                        
+                        for (int i = 0; i <= 55; ++i) {
+                            str = din.readUTF();
+                            System.out.print(str);
+                        }
+                        System.out.println("Has perdut");
+                        s.close();
+                        return;
                     }
+                    jugador = true;
                 }
+
+                else {
+                    boolean comprovapeca = false;
+                    do {
+                        System.out.print(din.readUTF());
+                        dout.writeInt(scan.nextInt());
+                        scan.nextLine();
+                        dout.flush();
+                        comprovapeca = din.readBoolean();
+                    }while (comprovapeca != true);
+                    comprovarguanyador = din.readBoolean();
+                    if(comprovarguanyador == true){
+                        for (int i = 0; i <= 55; ++i) {
+                            str = din.readUTF();
+                            System.out.print(str);
+                        }
+                        System.out.println("Has guanyat");
+                        s.close();
+                        return;
+                    }
+                    jugador = false;
+
+                }
+                System.out.println();
             }
         } catch (IOException e) {
             System.out.println(e);
