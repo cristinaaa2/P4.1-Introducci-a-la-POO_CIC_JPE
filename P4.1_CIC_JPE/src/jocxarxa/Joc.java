@@ -1,16 +1,13 @@
 package jocxarxa;
 
-import Servidor.Connexio;
+import servidor.Connexio;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class joc {
+public class Joc {
         static int f = 8;
         static int c = 9;
         static char[][] tbuit = new char[f][c];
@@ -150,7 +147,7 @@ public class joc {
             }
         }
     public static void afegirPeca(char peca, DataInputStream din, DataOutputStream dout) throws IOException {
-        int i = 0;
+        int i;
         int cp = 0;
         do {
             dout.writeUTF("En quina columna vols posar la peça (1-7): ");
@@ -173,7 +170,6 @@ public class joc {
                 }
             } else {
                 System.out.println("El numero a de ser entre 1 i 7.");
-                System.out.println("Aquesta columna està plena tria un altre.");
                 dout.writeBoolean(false);
             }
         } while ((i == 0) || !(cp > 0 && cp <= 7));
