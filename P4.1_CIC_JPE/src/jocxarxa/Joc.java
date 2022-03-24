@@ -91,11 +91,6 @@ public class Joc {
                     tbuit[i][j] = '.';
                 }
             }
-            tbuit[2][7] = 'X';
-            tbuit[3][7] = 'O';
-            tbuit[4][7] = 'X';
-            tbuit[5][7] = 'X';
-            tbuit[6][7] = 'O';
             try {
                 dout2.writeUTF("Tens la peça: O");
                 dout1.writeUTF("Tens la peça: X");
