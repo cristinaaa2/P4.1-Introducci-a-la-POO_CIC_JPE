@@ -91,6 +91,17 @@ public class Joc {
                     tbuit[i][j] = '.';
                 }
             }
+            tbuit[2][7] = 'X';
+            tbuit[3][7] = 'O';
+            tbuit[4][7] = 'X';
+            tbuit[5][7] = 'X';
+            tbuit[6][7] = 'O';
+            try {
+                dout2.writeUTF("Tens la peça: O");
+                dout1.writeUTF("Tens la peça: X");
+            } catch (IOException e){
+                System.out.println(e);
+            }
             mostrarTaulell();
         }
 
@@ -150,7 +161,7 @@ public class Joc {
         int i;
         int cp = 0;
         do {
-            dout.writeUTF("En quina columna vols posar la peça (1-7): ");
+            dout.writeUTF("En quina columna vols posar la peça " +  peca + " (1-7): ");
             dout.flush();
             cp = din.readInt();
             i = 0;
@@ -158,19 +169,25 @@ public class Joc {
                 while (tbuit[i + 1][cp] == 46) {
                     ++i;
                 }
-                if (tbuit[i +1][cp] != '.') {
+                if (i != 0) {
                     tbuit[i][cp] = peca;
                     dout.writeBoolean(true);
                     comprovarLinia(i, cp, peca);
                     mostrarTaulell();
 
                 } else {
-                    System.out.println("Aquesta columna està plena tria un altre.");
                     dout.writeBoolean(false);
+                    dout.flush();
+                    System.out.println("Aquesta columna està plena tria un altre.");
+                    dout.writeUTF("Aquesta columna està plena tria un altre.\n");
+                    dout.flush();
                 }
             } else {
-                System.out.println("El numero a de ser entre 1 i 7.");
                 dout.writeBoolean(false);
+                dout.flush();
+                System.out.println("El numero a de ser entre 1 i 7.");
+                dout.writeUTF("El numero a de ser entre 1 i 7.\n");
+                dout.flush();
             }
         } while ((i == 0) || !(cp > 0 && cp <= 7));
 

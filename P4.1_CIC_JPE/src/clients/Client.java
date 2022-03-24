@@ -18,6 +18,7 @@ public class Client {
             DataOutputStream dout = new DataOutputStream(s.getOutputStream());
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             Boolean jugador = esperarJugador(din);
+            System.out.println(din.readUTF());
             String str="",str2="";
             while(true) {
                 for (int i = 0; i <= 55; ++i) {
@@ -49,6 +50,9 @@ public class Client {
                         scan.nextLine();
                         dout.flush();
                         comprovapeca = din.readBoolean();
+                        if(comprovapeca == false){
+                            System.out.println(din.readUTF());
+                        }
                     }while (comprovapeca != true);
                     comprovarguanyador = din.readBoolean();
                     if(comprovarguanyador == true){
