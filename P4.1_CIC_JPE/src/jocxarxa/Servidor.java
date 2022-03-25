@@ -1,4 +1,9 @@
 package jocxarxa;
+/**
+ * Servidor joc Connecta 4
+ * @author Cristina de la Iglesia, Jordi Palomino
+ * @version 1.0
+ */
 
 import servidor.Connexio;
 
@@ -7,7 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Joc {
+public class Servidor {
         static int f = 8;
         static int c = 9;
         static char[][] tbuit = new char[f][c];
@@ -22,6 +27,11 @@ public class Joc {
         static char peca;
         static boolean fipartida = false;
     static Scanner scan = new Scanner(System.in);
+
+    /**
+     * Classe Main del Servidor
+     * @param args
+     */
     public static void main(String[] args) {
 
         try {
@@ -40,7 +50,6 @@ public class Joc {
             s2 = Connexio.establirconnexio(ss);
             din2=new DataInputStream(s2.getInputStream());
             dout2=new DataOutputStream(s2.getOutputStream());
-            BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
             jugador = false;
             Connexio.enviarEspera(dout2, jugador);
             dout1.writeBoolean(true);
@@ -53,39 +62,16 @@ public class Joc {
             System.out.println(e);
         }
         inicialitzarTaulell();
-        while (fipartida != true){
-            if(jugador == false) {
-                peca = 'X';
-                try {
-                    dout2.writeUTF("Esperi el seu torn...");
-                    dout2.flush();
-                    afegirPeca(peca, din1, dout1);
-                } catch (IOException e){
-                    System.out.println(e);
-                }
-                jugador = true;
-            } else {
-                peca = 'O';
-                try {
-                    dout1.writeUTF("Esperi el seu torn...");
-                    dout1.flush();
-                    afegirPeca(peca, din2, dout2);
-                } catch (IOException e){
-                    System.out.println(e);
-                }
-                jugador = false;
-            }
-        }
-        try{
-            ss.close();
-        } catch(IOException e){
-            System.out.println(e);
-        }
+        procesJoc();
+        finalitzarjoc();
 
 
     }
 
-    public static void inicialitzarTaulell() {
+    /**
+     * Mètode per iniciar l'array Bidimensional del Connecta 4
+     */
+    private static void inicialitzarTaulell() {
             for (int i = 1; i < f - 1; i++) {
                 for (int j = 1; j < c -1; j++) {
                     tbuit[i][j] = '.';
@@ -100,7 +86,10 @@ public class Joc {
             mostrarTaulell();
         }
 
-        public static void mostrarTaulell() {
+    /**
+     * Mètode per mostrar el taulell als 2 clients
+     */
+        private static void mostrarTaulell() {
             System.out.println();
             int n = 0;
             do {
@@ -152,7 +141,15 @@ public class Joc {
                 }
             }
         }
-    public static void afegirPeca(char peca, DataInputStream din, DataOutputStream dout) throws IOException {
+
+    /**
+     * Mètode per demanar al client on vol posar la seva peça
+     * @param peca Caràcter que defineix la peça que té el jugador
+     * @param din DatainputStream Rebre missatges del client
+     * @param dout DataOutputStream Enviar missatges al client
+     * @throws IOException
+     */
+    private static void afegirPeca(char peca, DataInputStream din, DataOutputStream dout) throws IOException {
         int i;
         int cp = 0;
         do {
@@ -188,7 +185,42 @@ public class Joc {
 
     }
 
-    public static void comprovarLinia(int i, int cp, char peca) {
+    /**
+     * Bucle del joc per continuar la partida.
+     */
+    private static void procesJoc(){
+        while (fipartida != true){
+            if(jugador == false) {
+                peca = 'X';
+                try {
+                    dout2.writeUTF("Esperi el seu torn...");
+                    dout2.flush();
+                    afegirPeca(peca, din1, dout1);
+                } catch (IOException e){
+                    System.out.println(e);
+                }
+                jugador = true;
+            } else {
+                peca = 'O';
+                try {
+                    dout1.writeUTF("Esperi el seu torn...");
+                    dout1.flush();
+                    afegirPeca(peca, din2, dout2);
+                } catch (IOException e){
+                    System.out.println(e);
+                }
+                jugador = false;
+            }
+        }
+    }
+
+    /**
+     * Mètode per anar comprovant si ha fet una linia de 4 fitxes
+     * @param i Enter que defineix la fila de la peça
+     * @param cp Enter que defineix la columna de la peça
+     * @param peca La peça que té el jugador per comprovar si ha guanyat
+     */
+    private static void comprovarLinia(int i, int cp, char peca) {
         if (liniaVertical(i, cp, peca)) {
             try {
                 dout1.writeBoolean(true);
@@ -248,7 +280,15 @@ public class Joc {
             }
         }
     }
-    public static boolean liniaVertical(int i, int cp, char peca) {
+
+    /**
+     * Mètode per comprovar la linia vertical per el mètode comprovarLinia
+     * @param i Enter que defineix la fila de la peça
+     * @param cp Enter que defineix la columna de la peça
+     * @param peca Caràcter que identifica el jugador
+     * @return True si hi ha linia o False si no
+     */
+    private static boolean liniaVertical(int i, int cp, char peca) {
         int l = 0;
         while (tbuit[i][cp] == peca) {
             l++;
@@ -256,7 +296,14 @@ public class Joc {
         }
         return l >= 4;
     }
-    public static boolean liniaHoritzontal(int i, int cp, char peca) {
+    /**
+     * Mètode per comprovar la horitzontal per el mètode comprovarLinia
+     * @param i Enter que defineix la fila de la peça
+     * @param cp Enter que defineix la columna de la peça
+     * @param peca Caràcter que identifica el jugador
+     * @return True si hi ha linia o False si no
+     */
+    private static boolean liniaHoritzontal(int i, int cp, char peca) {
         int l = 0;
         while (tbuit[i][cp] == peca) {
             cp--;
@@ -267,7 +314,14 @@ public class Joc {
         }
         return l >= 4;
     }
-    public static boolean liniaDiagonalEsquerra(int i, int cp, char peca) {
+    /**
+     * Mètode per comprovar la linia diagonal esquerra per el mètode comprovarLinia
+     * @param i Enter que defineix la fila de la peça
+     * @param cp Enter que defineix la columna de la peça
+     * @param peca Caràcter que identifica el jugador
+     * @return True si hi ha linia o False si no
+     */
+    private static boolean liniaDiagonalEsquerra(int i, int cp, char peca) {
         int l = 0;
         while (tbuit[i][cp] == peca) {
             i--;
@@ -280,7 +334,14 @@ public class Joc {
         }
         return l >= 4;
     }
-    public static boolean liniaDiagonalDreta(int i, int cp, char peca) {
+    /**
+     * Mètode per comprovar la linia diagonal dret per el mètode comprovarLinia
+     * @param i Enter que defineix la fila de la peça
+     * @param cp Enter que defineix la columna de la peça
+     * @param peca Caràcter que identifica el jugador
+     * @return True si hi ha linia o False si no
+     */
+    private static boolean liniaDiagonalDreta(int i, int cp, char peca) {
         int l = 0;
         while (tbuit[i][cp] == peca) {
             i--;
@@ -292,5 +353,16 @@ public class Joc {
             i++;
         }
         return l >= 4;
+    }
+
+    /**
+     * Mètode per finalitzar el joc
+     */
+    private static void finalitzarjoc(){
+        try{
+            ss.close();
+        } catch(IOException e){
+            System.out.println(e);
+        }
     }
 }

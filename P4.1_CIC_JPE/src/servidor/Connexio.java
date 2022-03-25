@@ -1,5 +1,9 @@
 package servidor;
-
+/**
+ * Classe connexió del servidor
+ * @author Cristina de la Iglesia, Jordi Palomino
+ * @version 1.0
+ */
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -14,7 +18,7 @@ public class Connexio {
         ip = s.getLocalAddress().getHostAddress();
         System.out.println("La ip del servidor per realitzar la connexió és: " + ip + ":5000");
     }
-
+    
     public static Socket establirconnexio(ServerSocket ss){
         try {
             return ss.accept();

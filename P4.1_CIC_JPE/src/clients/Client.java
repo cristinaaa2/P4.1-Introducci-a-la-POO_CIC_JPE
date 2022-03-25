@@ -1,5 +1,9 @@
 package clients;
-
+/**
+ * Client joc Connecta 4
+ * @author Cristina de la Iglesia, Jordi Palomino
+ * @version 1.0
+ */
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
@@ -16,7 +20,6 @@ public class Client {
             Socket s = new Socket(connexio, port);
             DataInputStream din = new DataInputStream(s.getInputStream());
             DataOutputStream dout = new DataOutputStream(s.getOutputStream());
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             Boolean jugador = esperarJugador(din);
             System.out.println(din.readUTF());
             String str="",str2="";
@@ -74,26 +77,46 @@ public class Client {
         }
     }
 
-    public static String obtenirConnexio(){
+    /**
+     * Mètode per escriure la connexió del servidor
+     * @return String de la IP + port
+     */
+    private static String obtenirConnexio(){
         String connexio;
         Scanner scan = new Scanner(System.in);
         System.out.print("Digues connexió al servidor: ");
         connexio = scan.nextLine();
         return connexio;
     }
-    public static int obtenirPort(String connexio) {
+
+    /**
+     * Mètode per obtenir el port de la connexió
+     * @param connexio
+     * @return
+     */
+    private static int obtenirPort(String connexio) {
         int delimiter = connexio.indexOf(':');
         String port = connexio.substring(delimiter + 1);
         return Integer.parseInt(port);
     }
 
-    public static String separarPortdeIP(String connexio){
+    /**
+     * Mètode peer treure el port de la variable Connexió
+     * @param connexio String amb la IP i el port
+     * @return String només amb la IP
+     */
+    private static String separarPortdeIP(String connexio){
         int delimiter = connexio.indexOf(':');
         connexio = connexio.substring(0,delimiter);
         return connexio;
     }
 
-    public static boolean esperarJugador(DataInputStream din) {
+    /**
+     * Mètode per fer l'espera del 2n jugador
+     * @param din DataInputStream per rebre missatges del servidor
+     * @return booleà de l'espera que identifica al jugador.
+     */
+    private static boolean esperarJugador(DataInputStream din) {
         try {
             System.out.println(din.readUTF());
             Boolean espera = din.readBoolean();
