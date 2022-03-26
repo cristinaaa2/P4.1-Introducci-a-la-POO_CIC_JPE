@@ -1,4 +1,4 @@
-package servidor;
+package connexio;
 /**
  * Classe connexió del servidor
  * @author Cristina de la Iglesia, Jordi Palomino
@@ -12,14 +12,23 @@ import java.net.Socket;
     La Classe Connexio es on esta la configuracio del Servidor perque els clinets es poguin conectar.
 */
 public class Connexio {
-    public static void mostrarip() throws IOException {
+    /**
+     * Mètode per obtenir i mostrar la IP del servidor
+     * @throws IOException
+     */
+    public static void mostrarIP() throws IOException {
         String ip;
         Socket s = new Socket("www.google.com",80);
         ip = s.getLocalAddress().getHostAddress();
         System.out.println("La ip del servidor per realitzar la connexió és: " + ip + ":5000");
     }
-    
-    public static Socket establirconnexio(ServerSocket ss){
+
+    /**
+     * Mètde per establir la connexó amb el client
+     * @param ss ServerSocket per poder fer la connexió
+     * @return Connexió Establerta
+     */
+    public static Socket establirConnexio(ServerSocket ss){
         try {
             return ss.accept();
         }
@@ -28,6 +37,12 @@ public class Connexio {
             return null;
         }
     }
+
+    /**
+     * Mètdoe per enviar una Espera al client perquè es connecti un 2n jugador
+     * @param dout DataOutputStream per enviar missatges d'informació al client
+     * @param espera Booleà per saber si és el 1r que es connecta o el 2n
+     */
     public static void enviarEspera(DataOutputStream dout, Boolean espera){
         try {
             if (espera == true) {

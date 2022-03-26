@@ -1,21 +1,24 @@
-package jocxarxa;
+package jocxarxannexion;
 /**
  * Servidor joc Connecta 4
  * @author Cristina de la Iglesia, Jordi Palomino
  * @version 1.0
  */
 
-import servidor.Connexio;
+import connexio.*;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * Clase Servidor que fa de Main del Servidor
+ */
 public class Servidor {
         static int f = 8;
         static int c = 9;
-        static char[][] tbuit = new char[f][c];
+        static char[][] taulell = new char[f][c];
         static Socket s1;
         static Socket s2;
         static DataInputStream din1;
@@ -26,7 +29,7 @@ public class Servidor {
         static Boolean jugador;
         static char peca;
         static boolean fipartida = false;
-    static Scanner scan = new Scanner(System.in);
+        static Scanner scan = new Scanner(System.in);
 
     /**
      * Classe Main del Servidor
@@ -36,18 +39,18 @@ public class Servidor {
 
         try {
             //Mostrar IP del Servidor
-            Connexio.mostrarip();
+            Connexio.mostrarIP();
 
             //Inicialitzar connexió amb el 1r Client
             ss = new ServerSocket(5000);
-            s1 = Connexio.establirconnexio(ss);
+            s1 = Connexio.establirConnexio(ss);
             din1=new DataInputStream(s1.getInputStream());
             dout1=new DataOutputStream(s1.getOutputStream());
             jugador = true;
             Connexio.enviarEspera(dout1, jugador);
 
             //Inicialitzar connexió amb el 2n Client
-            s2 = Connexio.establirconnexio(ss);
+            s2 = Connexio.establirConnexio(ss);
             din2=new DataInputStream(s2.getInputStream());
             dout2=new DataOutputStream(s2.getOutputStream());
             jugador = false;
@@ -62,9 +65,8 @@ public class Servidor {
             System.out.println(e);
         }
         inicialitzarTaulell();
-        procesJoc();
-        finalitzarjoc();
-
+        procesJocServidor();
+        finalitzarJoc();
 
     }
 
@@ -74,7 +76,7 @@ public class Servidor {
     private static void inicialitzarTaulell() {
             for (int i = 1; i < f - 1; i++) {
                 for (int j = 1; j < c -1; j++) {
-                    tbuit[i][j] = '.';
+                    taulell[i][j] = '.';
                 }
             }
             try {
@@ -83,13 +85,13 @@ public class Servidor {
             } catch (IOException e){
                 System.out.println(e);
             }
-            mostrarTaulell();
+            mostrarTaulellServidor();
         }
 
     /**
      * Mètode per mostrar el taulell als 2 clients
      */
-        private static void mostrarTaulell() {
+        private static void mostrarTaulellServidor() {
             System.out.println();
             int n = 0;
             do {
@@ -116,10 +118,10 @@ public class Servidor {
             } catch (IOException e){
                 System.out.println(e);
             }
-            for (int i =1; i < tbuit.length -1; i++) {
-                for (int j = 1; j < tbuit[i].length - 1; j++) {
-                    System.out.print(" " + tbuit[i][j] + " ");
-                    String enviar = String.format(" " + tbuit[i][j] + " ");
+            for (int i =1; i < taulell.length -1; i++) {
+                for (int j = 1; j < taulell[i].length - 1; j++) {
+                    System.out.print(" " + taulell[i][j] + " ");
+                    String enviar = String.format(" " + taulell[i][j] + " ");
                     try{
                         dout1.writeUTF(enviar);
                         dout1.flush();
@@ -158,14 +160,14 @@ public class Servidor {
             cp = din.readInt();
             i = 0;
             if (cp > 0 && cp <= 7) {
-                while (tbuit[i + 1][cp] == 46) {
+                while (taulell[i + 1][cp] == 46) {
                     ++i;
                 }
                 if (i != 0) {
-                    tbuit[i][cp] = peca;
+                    taulell[i][cp] = peca;
                     dout.writeBoolean(true);
                     comprovarLinia(i, cp, peca);
-                    mostrarTaulell();
+                    mostrarTaulellServidor();
 
                 } else {
                     dout.writeBoolean(false);
@@ -188,7 +190,7 @@ public class Servidor {
     /**
      * Bucle del joc per continuar la partida.
      */
-    private static void procesJoc(){
+    private static void procesJocServidor(){
         while (fipartida != true){
             if(jugador == false) {
                 peca = 'X';
@@ -290,7 +292,7 @@ public class Servidor {
      */
     private static boolean liniaVertical(int i, int cp, char peca) {
         int l = 0;
-        while (tbuit[i][cp] == peca) {
+        while (taulell[i][cp] == peca) {
             l++;
             i++;
         }
@@ -305,10 +307,10 @@ public class Servidor {
      */
     private static boolean liniaHoritzontal(int i, int cp, char peca) {
         int l = 0;
-        while (tbuit[i][cp] == peca) {
+        while (taulell[i][cp] == peca) {
             cp--;
         }
-        while (tbuit[i][cp + 1] == peca) {
+        while (taulell[i][cp + 1] == peca) {
             l++;
             cp++;
         }
@@ -323,11 +325,11 @@ public class Servidor {
      */
     private static boolean liniaDiagonalEsquerra(int i, int cp, char peca) {
         int l = 0;
-        while (tbuit[i][cp] == peca) {
+        while (taulell[i][cp] == peca) {
             i--;
             cp--;
         }
-        while (tbuit[i + 1][cp + 1] == peca) {
+        while (taulell[i + 1][cp + 1] == peca) {
             l++;
             cp++;
             i++;
@@ -343,11 +345,11 @@ public class Servidor {
      */
     private static boolean liniaDiagonalDreta(int i, int cp, char peca) {
         int l = 0;
-        while (tbuit[i][cp] == peca) {
+        while (taulell[i][cp] == peca) {
             i--;
             cp++;
         }
-        while (tbuit[i + 1][cp - 1] == peca) {
+        while (taulell[i + 1][cp - 1] == peca) {
             l++;
             cp--;
             i++;
@@ -358,7 +360,7 @@ public class Servidor {
     /**
      * Mètode per finalitzar el joc
      */
-    private static void finalitzarjoc(){
+    private static void finalitzarJoc(){
         try{
             ss.close();
         } catch(IOException e){
