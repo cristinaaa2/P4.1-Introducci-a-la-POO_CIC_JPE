@@ -1,11 +1,11 @@
-package jocxarxannexion;
+package servidor;
 /**
  * Servidor joc Connecta 4
  * @author Cristina de la Iglesia, Jordi Palomino
  * @version 1.0
  */
 
-import connexio.*;
+import connexio.Connexio;
 
 import java.io.*;
 import java.net.ServerSocket;

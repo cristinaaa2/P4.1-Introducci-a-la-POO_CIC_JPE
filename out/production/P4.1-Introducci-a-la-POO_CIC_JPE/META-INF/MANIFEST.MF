@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: jocxarxannexion.Servidor
+Main-Class: clients.Client
 
